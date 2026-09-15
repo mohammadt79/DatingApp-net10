@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
@@ -15,13 +16,15 @@ export class App implements OnInit {
   private http = inject(HttpClient);
 
   ngOnInit(): void {
-    this.http.get<any>('https://jsonplaceholder.typicode.com/todos/1').subscribe({
+    this.http.get('http://localhost:5001/api/users').subscribe({
       next: (response) => {
         this.apiResponse = response;
-        this.title = response.title ?? this.title;
       },
       error: (error) => {
         console.error('Failed to load data', error);
+      },
+      complete: () => {
+        console.log('Request complete');
       }
     });
   }
