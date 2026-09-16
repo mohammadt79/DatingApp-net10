@@ -1,3 +1,11 @@
 <h1>{{ title }}</h1>
 
+<ul>
+  @for (user of users(); track user.id) {
+  <li>{{ user.userName }}</li>
+  } @empty {
+  <li>در حال بارگذاری کاربران...</li>
+  }
+</ul>
+
 <router-outlet></router-outlet>
