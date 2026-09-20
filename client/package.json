@@ -28,6 +28,7 @@
     "@angular/forms": "18.2.14",
     "@angular/platform-browser": "18.2.14",
     "@angular/router": "18.2.14",
+    "@fortawesome/fontawesome-free": "^7.3.1",
     "bootstrap": "^5.3.8",
     "font-awesome": "^4.7.0",
     "ngx-bootstrap": "^18.1.3",
