@@ -21,6 +21,11 @@ public class TokenService(IConfiguration configuration) : ITokenService
             throw new InvalidOperationException("TokenKey cannot be empty.");
         }
 
+        if (tokenKey.Length < 64)
+        {
+            throw new InvalidOperationException("TokenKey must be at least 64 characters long.");
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
