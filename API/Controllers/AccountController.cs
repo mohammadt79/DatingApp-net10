@@ -46,8 +46,43 @@ public class AccountController(DataContext context) : BaseApiController
         return user;
     }
 
+    [HttpPost("login")]
+    public async Task<ActionResult<AppUser>> Login([FromBody] LoginDto loginDto)
+    {
+        if (loginDto == null)
+        {
+            return BadRequest("Login data is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(loginDto.Username) || string.IsNullOrWhiteSpace(loginDto.Password))
+        {
+            return BadRequest("Username and password are required.");
+        }
+
+        var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName.ToLower() == loginDto.Username.ToLower());
+
+        if (user == null)
+        {
+            return Unauthorized("Invalid username or password.");
+        }
+
+        if (!VerifyPasswordHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
+        {
+            return Unauthorized("Invalid username or password.");
+        }
+
+        return Ok(user);
+    }
+
     private async Task<bool> UserExists(string username)
     {
         return await _context.Users.AnyAsync(x => x.UserName.ToLower() == username.ToLower());
+    }
+
+    private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+    {
+        using var hmac = new HMACSHA512(storedSalt);
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(storedHash);
     }
 }
