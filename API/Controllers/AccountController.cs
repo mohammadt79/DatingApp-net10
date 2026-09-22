@@ -15,19 +15,19 @@ public class AccountController(DataContext context, ITokenService tokenService) 
     private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<AppUserDto>> Register([FromBody] RegisterDto registerDto)
+    public async Task<ActionResult<AppUser>> Register([FromBody] AppUser registerUser)
     {
-        if (registerDto == null)
+        if (registerUser == null)
         {
             return BadRequest("Register data is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(registerDto.Username) || string.IsNullOrWhiteSpace(registerDto.Password))
+        if (string.IsNullOrWhiteSpace(registerUser.UserName) || string.IsNullOrWhiteSpace(registerUser.Password))
         {
             return BadRequest("Username and password are required.");
         }
 
-        var usernameExists = await UserExists(registerDto.Username);
+        var usernameExists = await UserExists(registerUser.UserName);
         if (usernameExists)
         {
             return Conflict("Username already exists.");
@@ -37,27 +37,22 @@ public class AccountController(DataContext context, ITokenService tokenService) 
 
         var user = new AppUser
         {
-            UserName = registerDto.Username,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+            UserName = registerUser.UserName,
+            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerUser.Password)),
             PasswordSalt = hmac.Key
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        var appUserDto = new AppUserDto
-        {
-            Id = user.Id,
-            UserName = user.UserName
-        };
+        user.Password = string.Empty;
+        user.Token = _tokenService.CreateToken(user);
 
-        appUserDto.Token = _tokenService.CreateToken(appUserDto);
-
-        return Ok(appUserDto);
+        return Ok(user);
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUserDto>> Login([FromBody] LoginDto loginDto)
+    public async Task<ActionResult<AppUser>> Login([FromBody] LoginDto loginDto)
     {
         if (loginDto == null)
         {
@@ -81,15 +76,10 @@ public class AccountController(DataContext context, ITokenService tokenService) 
             return Unauthorized("Invalid username or password.");
         }
 
-        var appUserDto = new AppUserDto
-        {
-            Id = user.Id,
-            UserName = user.UserName
-        };
+        user.Password = string.Empty;
+        user.Token = _tokenService.CreateToken(user);
 
-        appUserDto.Token = _tokenService.CreateToken(appUserDto);
-
-        return Ok(appUserDto);
+        return Ok(user);
     }
 
     private async Task<bool> UserExists(string username)

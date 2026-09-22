@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using API.DTO;
+using API.Entities;
 using API.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,7 +11,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
 {
     private readonly IConfiguration _configuration = configuration;
 
-    public string CreateToken(AppUserDto user)
+    public string CreateToken(AppUser user)
     {
         var tokenKey = _configuration["TokenKey"] ??
             throw new InvalidOperationException("TokenKey is missing from configuration.");

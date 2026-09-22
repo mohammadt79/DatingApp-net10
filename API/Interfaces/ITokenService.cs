@@ -1,8 +1,8 @@
-using API.DTO;
+using API.Entities;
 
 namespace API.Interfaces;
 
 public interface ITokenService
 {
-    string CreateToken(AppUserDto user);
+    string CreateToken(AppUser user);
 }
