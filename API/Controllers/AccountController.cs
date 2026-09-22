@@ -3,17 +3,19 @@ using System.Text;
 using API.Data;
 using API.DTO;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-public class AccountController(DataContext context) : BaseApiController
+public class AccountController(DataContext context, ITokenService tokenService) : BaseApiController
 {
     private readonly DataContext _context = context;
+    private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<AppUser>> Register([FromBody] RegisterDto registerDto)
+    public async Task<ActionResult<AppUserDto>> Register([FromBody] RegisterDto registerDto)
     {
         if (registerDto == null)
         {
@@ -43,11 +45,19 @@ public class AccountController(DataContext context) : BaseApiController
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return user;
+        var appUserDto = new AppUserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName
+        };
+
+        appUserDto.Token = _tokenService.CreateToken(appUserDto);
+
+        return Ok(appUserDto);
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUser>> Login([FromBody] LoginDto loginDto)
+    public async Task<ActionResult<AppUserDto>> Login([FromBody] LoginDto loginDto)
     {
         if (loginDto == null)
         {
@@ -71,7 +81,15 @@ public class AccountController(DataContext context) : BaseApiController
             return Unauthorized("Invalid username or password.");
         }
 
-        return Ok(user);
+        var appUserDto = new AppUserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName
+        };
+
+        appUserDto.Token = _tokenService.CreateToken(appUserDto);
+
+        return Ok(appUserDto);
     }
 
     private async Task<bool> UserExists(string username)
