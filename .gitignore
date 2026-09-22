@@ -248,6 +248,14 @@ ClientBin/
 *.publishsettings
 orleans.codegen.cs
 
+# SQLite / local database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+API/dating.db
+
 # Including strong name files can present a security risk
 # (https://github.com/github/gitignore/pull/2483#issue-259490424)
 #*.snk
