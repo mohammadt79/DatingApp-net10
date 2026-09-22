@@ -4,6 +4,7 @@ using API.Data;
 using API.DTO;
 using API.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -24,6 +25,12 @@ public class AccountController(DataContext context) : BaseApiController
             return BadRequest("Username and password are required.");
         }
 
+        var usernameExists = await UserExists(registerDto.Username);
+        if (usernameExists)
+        {
+            return Conflict("Username already exists.");
+        }
+
         using var hmac = new HMACSHA512();
 
         var user = new AppUser
@@ -37,5 +44,10 @@ public class AccountController(DataContext context) : BaseApiController
         await _context.SaveChangesAsync();
 
         return user;
+    }
+
+    private async Task<bool> UserExists(string username)
+    {
+        return await _context.Users.AnyAsync(x => x.UserName.ToLower() == username.ToLower());
     }
 }
