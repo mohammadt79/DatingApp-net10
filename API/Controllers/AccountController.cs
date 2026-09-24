@@ -15,7 +15,7 @@ public class AccountController(DataContext context, ITokenService tokenService) 
     private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<AppUser>> Register([FromBody] AppUser registerUser)
+    public async Task<ActionResult<UserDto>> Register([FromBody] AppUser registerUser)
     {
         if (registerUser == null)
         {
@@ -45,14 +45,17 @@ public class AccountController(DataContext context, ITokenService tokenService) 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        user.Password = string.Empty;
-        user.Token = _tokenService.CreateToken(user);
+        var token = _tokenService.CreateToken(user);
 
-        return Ok(user);
+        return Ok(new UserDto
+        {
+            UserName = user.UserName,
+            Token = token
+        });
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUser>> Login([FromBody] LoginDto loginDto)
+    public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto loginDto)
     {
         if (loginDto == null)
         {
@@ -76,10 +79,13 @@ public class AccountController(DataContext context, ITokenService tokenService) 
             return Unauthorized("Invalid username or password.");
         }
 
-        user.Password = string.Empty;
-        user.Token = _tokenService.CreateToken(user);
+        var token = _tokenService.CreateToken(user);
 
-        return Ok(user);
+        return Ok(new UserDto
+        {
+            UserName = user.UserName,
+            Token = token
+        });
     }
 
     private async Task<bool> UserExists(string username)
