@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { EMPTY, tap } from 'rxjs';
 
 export interface LoginRequest {
   username: string;
@@ -32,6 +32,26 @@ export class AccountService {
   }
 
   logout() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      this.clearAuthState();
+      return;
+    }
+
+    this.http
+      .post<void>(`${this.baseUrl}/account/logout`, {}, {
+        headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
+      })
+      .pipe(
+        tap(() => this.clearAuthState()),
+      )
+      .subscribe({
+        error: () => this.clearAuthState(),
+      });
+  }
+
+  private clearAuthState() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     this.isLoggedIn.set(false);

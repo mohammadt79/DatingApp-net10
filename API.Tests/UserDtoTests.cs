@@ -42,4 +42,29 @@ public class UserDtoTests
 
         Assert.False(string.IsNullOrWhiteSpace(token));
     }
+
+    [Fact]
+    public void TokenService_ShouldRevokeToken()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["TokenKey"] = "1234567890123456789012345678901234567890123456789012345678901234"
+            })
+            .Build();
+
+        var service = new TokenService(configuration);
+        var user = new AppUser
+        {
+            UserName = "alice",
+            PasswordHash = Array.Empty<byte>(),
+            PasswordSalt = Array.Empty<byte>()
+        };
+
+        var token = service.CreateToken(user);
+
+        service.RevokeToken(token);
+
+        Assert.True(service.IsTokenRevoked(token));
+    }
 }

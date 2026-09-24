@@ -1,4 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,6 +28,26 @@ public static class IdentityServiceExtensions
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = context =>
+                {
+                    var token = context.SecurityToken as JwtSecurityToken;
+                    if (token == null)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+                    if (tokenService.IsTokenRevoked(token.RawData))
+                    {
+                        context.Fail("This token has been revoked.");
+                    }
+
+                    return Task.CompletedTask;
+                }
             };
         });
 

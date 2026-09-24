@@ -4,6 +4,7 @@ using API.Data;
 using API.DTO;
 using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -86,6 +87,21 @@ public class AccountController(DataContext context, ITokenService tokenService) 
             UserName = user.UserName,
             Token = token
         });
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
+
+        if (!string.IsNullOrWhiteSpace(authorizationHeader) && authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            var token = authorizationHeader["Bearer ".Length..].Trim();
+            _tokenService.RevokeToken(token);
+        }
+
+        return NoContent();
     }
 
     private async Task<bool> UserExists(string username)
