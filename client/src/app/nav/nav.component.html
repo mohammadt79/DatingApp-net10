@@ -19,11 +19,25 @@
       </ul>
 
       @if (loggedIn()) {
-        <div class="d-flex align-items-center gap-2 text-white">
-          <span>Welcome {{ username }}</span>
-          <button class="btn btn-outline-light btn-sm" type="button" (click)="logout()">
-            Logout
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-light btn-sm dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ username || 'Account' }}
           </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button class="dropdown-item" type="button" (click)="logout()">Logout</button>
+            </li>
+            <li>
+              <button class="dropdown-item text-muted" type="button" (click)="editUser()">
+                Edit User
+              </button>
+            </li>
+          </ul>
         </div>
       } @else {
         <form class="d-flex gap-2" (ngSubmit)="login()">

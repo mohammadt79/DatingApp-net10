@@ -43,4 +43,8 @@ export class NavComponent {
     this.username = '';
     this.model = { username: '', password: '' };
   }
+
+  editUser() {
+    // TODO: implement edit user functionality later.
+  }
 }
