@@ -16,23 +16,36 @@
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
         <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
-        <li class="nav-item"><a class="nav-link disabled" aria-disabled="true">Disabled</a></li>
       </ul>
-      <form class="d-flex" role="search">
-        <input
-          class="form-control me-2"
-          type="Username"
-          placeholder="Username"
-          aria-label="Search"
-        />
-        <input
-          class="form-control me-2"
-          type="Password"
-          placeholder="Password"
-          aria-label="Password"
-        />
-        <button class="btn btn-outline-success" type="submit">login</button>
-      </form>
+
+      @if (loggedIn()) {
+        <div class="d-flex align-items-center gap-2 text-white">
+          <span>Welcome {{ username }}</span>
+          <button class="btn btn-outline-light btn-sm" type="button" (click)="logout()">
+            Logout
+          </button>
+        </div>
+      } @else {
+        <form class="d-flex gap-2" (ngSubmit)="login()">
+          <input
+            class="form-control"
+            type="text"
+            name="username"
+            placeholder="Username"
+            aria-label="Username"
+            [(ngModel)]="model.username"
+          />
+          <input
+            class="form-control"
+            type="password"
+            name="password"
+            placeholder="Password"
+            aria-label="Password"
+            [(ngModel)]="model.password"
+          />
+          <button class="btn btn-outline-success" type="submit">Login</button>
+        </form>
+      }
     </div>
   </div>
 </nav>
