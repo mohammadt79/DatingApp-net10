@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
+import { NavComponent } from './nav/nav.component';
 
 interface AppUser {
   id: number;
@@ -10,9 +11,9 @@ interface AppUser {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NavComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App implements OnInit {
   title = 'mohammad';
@@ -30,7 +31,7 @@ export class App implements OnInit {
       },
       complete: () => {
         console.log('Request complete');
-      }
+      },
     });
   }
 }

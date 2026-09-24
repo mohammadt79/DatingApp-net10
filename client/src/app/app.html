@@ -1,11 +1,14 @@
-<h1>{{ title }}</h1>
+<app-nav></app-nav>
 
-<ul>
-  @for (user of users(); track user.id) {
-  <li>{{ user.userName }}</li>
-  } @empty {
-  <li>در حال بارگذاری کاربران...</li>
-  }
-</ul>
+<div class="container">
+  <h1>{{ title }}</h1>
+  <ul>
+    @for (user of users(); track user.id) {
+      <li>{{ user.userName }}</li>
+    } @empty {
+      <li>در حال بارگذاری کاربران...</li>
+    }
+  </ul>
+</div>
 
 <router-outlet></router-outlet>
