@@ -12,13 +12,19 @@ import { AccountService } from '../services/account.service';
 export class NavComponent {
   private readonly accountService = inject(AccountService);
 
+  readonly allLinks = ['Home', 'Discover', 'About', 'Support', 'Matches', 'Messages', 'Profile'];
+
   model = {
     username: '',
     password: '',
   };
 
   loggedIn = this.accountService.isLoggedIn;
-  username = localStorage.getItem('username') ?? '';
+  readonly username = this.accountService.currentUser;
+
+  get visibleLinks(): string[] {
+    return this.loggedIn() ? this.allLinks : this.allLinks.slice(0, 3);
+  }
 
   login() {
     this.accountService
@@ -27,8 +33,7 @@ export class NavComponent {
         password: this.model.password,
       })
       .subscribe({
-        next: (response) => {
-          this.username = response.userName;
+        next: () => {
           this.model = { username: '', password: '' };
         },
         error: (error) => {
@@ -40,7 +45,6 @@ export class NavComponent {
 
   logout() {
     this.accountService.logout();
-    this.username = '';
     this.model = { username: '', password: '' };
   }
 

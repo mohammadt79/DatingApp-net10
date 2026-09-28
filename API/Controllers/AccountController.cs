@@ -16,19 +16,19 @@ public class AccountController(DataContext context, ITokenService tokenService) 
     private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    public async Task<ActionResult<UserDto>> Register([FromBody] AppUser registerUser)
+    public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto registerUser)
     {
         if (registerUser == null)
         {
             return BadRequest("Register data is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(registerUser.UserName) || string.IsNullOrWhiteSpace(registerUser.Password))
+        if (string.IsNullOrWhiteSpace(registerUser.Username) || string.IsNullOrWhiteSpace(registerUser.Password))
         {
             return BadRequest("Username and password are required.");
         }
 
-        var usernameExists = await UserExists(registerUser.UserName);
+        var usernameExists = await UserExists(registerUser.Username);
         if (usernameExists)
         {
             return Conflict("Username already exists.");
@@ -38,7 +38,7 @@ public class AccountController(DataContext context, ITokenService tokenService) 
 
         var user = new AppUser
         {
-            UserName = registerUser.UserName,
+            UserName = registerUser.Username,
             PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerUser.Password)),
             PasswordSalt = hmac.Key
         };

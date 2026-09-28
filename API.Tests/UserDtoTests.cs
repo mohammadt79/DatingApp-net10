@@ -1,3 +1,5 @@
+using System.Reflection;
+using API.Controllers;
 using API.DTO;
 using API.Entities;
 using API.Services;
@@ -18,6 +20,15 @@ public class UserDtoTests
 
         Assert.Equal("alice", dto.UserName);
         Assert.Equal("test-token", dto.Token);
+    }
+
+    [Fact]
+    public void RegisterAction_ShouldAcceptRegisterDto()
+    {
+        var method = typeof(AccountController).GetMethod("Register", BindingFlags.Public | BindingFlags.Instance);
+
+        Assert.NotNull(method);
+        Assert.Equal(typeof(RegisterDto), method!.GetParameters()[0].ParameterType);
     }
 
     [Fact]
