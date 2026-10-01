@@ -8,23 +8,28 @@ import { LoginRequest, UserDto } from '../models/account.model';
 })
 export class AccountService {
   private readonly baseUrl = 'http://localhost:5001/api';
+
   readonly isLoggedIn = signal<boolean>(this.hasToken());
   readonly currentUser = signal<string>(this.getCurrentUser());
-  readonly hasLoggedInBefore = signal<boolean>(this.getHasLoggedInBefore());
+  readonly hasLoggedInBefore = signal<boolean>(this.getHasLoggedInBefore(this.getCurrentUser()));
 
   constructor(private http: HttpClient) {}
 
   login(model: LoginRequest) {
     return this.http.post<UserDto>(`${this.baseUrl}/account/login`, model).pipe(
       tap((response) => {
-        const returningUser = this.getHasLoggedInBefore();
+        const username = response.userName;
+        const wasReturningUser = this.getHasLoggedInBefore(username);
 
         localStorage.setItem('token', response.token);
-        localStorage.setItem('username', response.userName);
-        localStorage.setItem('hasLoggedInBefore', 'true');
+        localStorage.setItem('username', username);
 
-        this.currentUser.set(response.userName);
-        this.hasLoggedInBefore.set(returningUser);
+        if (!wasReturningUser) {
+          localStorage.setItem(`hasLoggedInBefore${username}`, 'true');
+        }
+
+        this.currentUser.set(username);
+        this.hasLoggedInBefore.set(wasReturningUser);
         this.isLoggedIn.set(true);
       }),
     );
@@ -33,14 +38,18 @@ export class AccountService {
   register(model: LoginRequest) {
     return this.http.post<UserDto>(`${this.baseUrl}/account/register`, model).pipe(
       tap((response) => {
-        const returningUser = this.getHasLoggedInBefore();
+        const username = response.userName;
+        const wasReturningUser = this.getHasLoggedInBefore(username);
 
         localStorage.setItem('token', response.token);
-        localStorage.setItem('username', response.userName);
-        localStorage.setItem('hasLoggedInBefore', 'true');
+        localStorage.setItem('username', username);
 
-        this.currentUser.set(response.userName);
-        this.hasLoggedInBefore.set(returningUser);
+        if (!wasReturningUser) {
+          localStorage.setItem(`hasLoggedInBefore${username}`, 'true');
+        }
+
+        this.currentUser.set(username);
+        this.hasLoggedInBefore.set(wasReturningUser);
         this.isLoggedIn.set(true);
       }),
     );
@@ -58,9 +67,7 @@ export class AccountService {
       .post<void>(`${this.baseUrl}/account/logout`, {}, {
         headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
       })
-      .pipe(
-        tap(() => this.clearAuthState()),
-      )
+      .pipe(tap(() => this.clearAuthState()))
       .subscribe({
         error: () => this.clearAuthState(),
       });
@@ -81,7 +88,11 @@ export class AccountService {
     return localStorage.getItem('username') ?? '';
   }
 
-  private getHasLoggedInBefore(): boolean {
-    return localStorage.getItem('hasLoggedInBefore') === 'true';
+  private getHasLoggedInBefore(username: string): boolean {
+    if (!username) {
+      return false;
+    }
+
+    return localStorage.getItem(`hasLoggedInBefore${username}`) === 'true';
   }
 }

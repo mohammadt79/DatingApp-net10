@@ -50,3 +50,36 @@
   font-size: 1.1rem;
   line-height: 1.7;
 }
+
+.io-demo-section {
+  padding: 1rem 0 4rem;
+}
+
+.io-demo-heading {
+  margin: 0 auto 1.5rem;
+  text-align: center;
+}
+
+.io-demo-heading h2 {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.io-demo-heading p {
+  margin-bottom: 0;
+  color: #6c757d;
+}
+
+.parent-output {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 720px;
+  margin: 1rem auto 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid #badbcc;
+  border-radius: 0.75rem;
+  background: #d1e7dd;
+  color: #0f5132;
+}
