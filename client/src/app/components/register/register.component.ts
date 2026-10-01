@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { AccountService } from '../../services/account.service';
 
 @Component({
@@ -22,11 +23,12 @@ export class RegisterComponent {
   constructor(
     private readonly accountService: AccountService,
     private readonly router: Router,
+    private readonly toastr: ToastrService,
   ) {}
 
   register() {
     if (!this.model.username || !this.model.password) {
-      alert('Username and password are required.');
+      this.toastr.warning('Username and password are required.');
       return;
     }
 
@@ -41,11 +43,12 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           this.model = { username: '', password: '' };
+          this.toastr.success('Your account has been created.');
           this.router.navigateByUrl('/');
         },
         error: (error) => {
           console.error('Register failed', error);
-          alert('Registration failed. Please try another username.');
+          this.toastr.error('Registration failed. Please try another username.');
         },
       });
   }

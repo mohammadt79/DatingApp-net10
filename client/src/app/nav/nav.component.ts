@@ -1,18 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { AccountService } from '../services/account.service';
 
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.css',
 })
 export class NavComponent {
   private readonly accountService = inject(AccountService);
-
-  readonly allLinks = ['Home', 'Discover', 'About', 'Support', 'Matches', 'Messages', 'Profile'];
+  private readonly router = inject(Router);
+  private readonly toastr = inject(ToastrService);
 
   model = {
     username: '',
@@ -21,10 +23,6 @@ export class NavComponent {
 
   loggedIn = this.accountService.isLoggedIn;
   readonly username = this.accountService.currentUser;
-
-  get visibleLinks(): string[] {
-    return this.loggedIn() ? this.allLinks : this.allLinks.slice(0, 3);
-  }
 
   login() {
     this.accountService
@@ -35,17 +33,28 @@ export class NavComponent {
       .subscribe({
         next: () => {
           this.model = { username: '', password: '' };
+          this.toastr.success('You are now logged in.');
+          this.router.navigateByUrl('/members');
         },
         error: (error) => {
           console.error('Login failed', error);
-          alert('Username or password is invalid.');
+          this.toastr.error('Login failed. Check your username and password.');
         },
       });
   }
 
   logout() {
-    this.accountService.logout();
     this.model = { username: '', password: '' };
+    this.accountService.logout().subscribe({
+      next: () => {
+        this.toastr.success('You have been logged out.');
+        this.router.navigateByUrl('/');
+      },
+      error: () => {
+        this.toastr.warning('You were signed out on this device.');
+        this.router.navigateByUrl('/');
+      },
+    });
   }
 
   editUser() {

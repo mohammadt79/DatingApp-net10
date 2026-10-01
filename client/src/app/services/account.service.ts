@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { catchError, of, tap, throwError } from 'rxjs';
 import { LoginRequest, UserDto } from '../models/account.model';
 
 @Injectable({
@@ -60,17 +60,24 @@ export class AccountService {
 
     if (!token) {
       this.clearAuthState();
-      return;
+      return of(void 0);
     }
 
-    this.http
-      .post<void>(`${this.baseUrl}/account/logout`, {}, {
+    return this.http
+      .post<void>(
+        `${this.baseUrl}/account/logout`,
+        {},
+        {
         headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
-      })
-      .pipe(tap(() => this.clearAuthState()))
-      .subscribe({
-        error: () => this.clearAuthState(),
-      });
+        },
+      )
+      .pipe(
+        tap(() => this.clearAuthState()),
+        catchError((error) => {
+          this.clearAuthState();
+          return throwError(() => error);
+        }),
+      );
   }
 
   private clearAuthState() {
