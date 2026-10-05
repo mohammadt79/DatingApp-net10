@@ -34,25 +34,26 @@ public class AccountController(DataContext context, ITokenService tokenService) 
             return Conflict("Username already exists.");
         }
 
-        using var hmac = new HMACSHA512();
+        // using var hmac = new HMACSHA512();
 
-        var user = new AppUser
-        {
-            UserName = registerUser.Username,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerUser.Password)),
-            PasswordSalt = hmac.Key
-        };
+        // var user = new AppUser
+        // {
+        //     UserName = registerUser.Username,
+        //     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerUser.Password)),
+        //     PasswordSalt = hmac.Key
+        // };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        // _context.Users.Add(user);
+        // await _context.SaveChangesAsync();
 
-        var token = _tokenService.CreateToken(user);
+        // var token = _tokenService.CreateToken(user);
 
-        return Ok(new UserDto
-        {
-            UserName = user.UserName,
-            Token = token
-        });
+        // return Ok(new UserDto
+        // {
+        //     UserName = user.UserName,
+        //     Token = token
+        // });
+        return Ok();
     }
 
     [HttpPost("login")]
